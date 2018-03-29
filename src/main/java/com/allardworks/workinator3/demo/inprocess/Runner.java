@@ -45,9 +45,20 @@ public class Runner implements CommandLineRunner {
         val partition = CreatePartitionCommand
                 .builder()
                 .partitionKey(partitionName)
+                .maxWorkerCount(getWorkerCount(command))
                 .build();
         workinator.createPartition(partition);
         return true;
+    }
+
+    private int getWorkerCount(final CommandLine command) {
+        // i'm pretty sure this is the wrong way to handle command arguments,
+        // but i can't figure out the right way.
+        val workerCountOption = command.getOptionValue("wc");
+        return
+                workerCountOption == null
+                        ? 1
+                        : parseInt(workerCountOption);
     }
 
     private boolean createConsumer(final CommandLine command) {
@@ -56,22 +67,28 @@ public class Runner implements CommandLineRunner {
             return false;
         }
 
-        // i'm pretty sure this is the wrong way to handle command arguments,
-        // but i can't figure out the right way.
-        val workerCountOption = command.getOptionValue("wc");
-        val workerCount =
-                workerCountOption == null
-                        ? 1
-                        : parseInt(workerCountOption);
-
-
         val id = new ConsumerId(consumerName);
         val configuration = new ConsumerConfiguration();
-        configuration.setMaxWorkerCount(workerCount);
+        configuration.setMaxWorkerCount(getWorkerCount(command));
 
         val consumer = consumerFactory.create(id, configuration);
         consumer.start();
         consumers.put(consumerName, consumer);
+        return true;
+    }
+
+    private boolean stopConsumer(final CommandLine command) {
+        val consumerName = command.getOptionValue("sc");
+        if (consumerName == null) {
+            return false;
+        }
+
+        val consumer = consumers.get(consumerName);
+        if (consumer == null) {
+            return false;
+        }
+
+        consumer.stop();
         return true;
     }
 
@@ -90,13 +107,14 @@ public class Runner implements CommandLineRunner {
         val output = new StringBuffer();
         for (val c : consumers.values()) {
             output.append("Consumer: " + c.getConsumerId().getName() + lineSeparator());
+            output.append("\t" + c.getStatus() + lineSeparator());
             val executors = c.getExecutors();
             for (val e : executors) {
                 val assignment =
                         e.getAssignment() == null
                                 ? ""
                                 : e.getAssignment().getPartitionKey();
-                output.append("\t" + e.getWorkerId().getWorkerNumber() + ", Assignment=" + assignment + lineSeparator());
+                output.append("\t" + e.getWorkerId().getWorkerNumber() + " - " + e.getStatus() + ", Assignment=" + assignment + lineSeparator());
             }
             output.append(lineSeparator());
         }
@@ -175,7 +193,8 @@ public class Runner implements CommandLineRunner {
         val parser = new DefaultParser();
 
         val options = new Options();
-        options.addOption(new Option("cc", "createconsumer", true, "Create a consumer. Add a space and WORKER COUNT. IE: -cc blah 4"));
+        options.addOption(new Option("cc", "createconsumer", true, "Create a consumer. See also the -wc option."));
+        options.addOption(new Option("sc", "stopconsumer", true, "Stop a consumer."));
         options.addOption(new Option("wc", "workercount", true, "For use with -cc. The number of worker threads."));
         options.addOption(new Option("cp", "createpartition", true, "Create a partition"));
         options.addOption(new Option("scl", "showconsumerslocal", false, "Display In Process Consumer Information"));
@@ -191,6 +210,7 @@ public class Runner implements CommandLineRunner {
                 val processed =
                         createPartition(command)
                                 || createConsumer(command)
+                                || stopConsumer(command)
                                 || showLocalConsumerStatus(command)
                                 || showHelp(command, options)
                                 || setPartitionHasWork(command)
@@ -202,7 +222,7 @@ public class Runner implements CommandLineRunner {
                     showHelp(options);
                 }
             } catch (final Exception ex) {
-                ex.printStackTrace();
+                System.out.println(ex.toString());
                 showHelp(options);
             }
         }
