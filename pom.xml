@@ -40,6 +40,16 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
 
 		<!--
 			coordinator = mongo
@@ -55,13 +65,11 @@
             <artifactId>workinator3-consumer</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>1.4</version>
+			<groupId>com.allardworks.workinator3</groupId>
+			<artifactId>workinator3-httpapi</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
 	</dependencies>
 
 
