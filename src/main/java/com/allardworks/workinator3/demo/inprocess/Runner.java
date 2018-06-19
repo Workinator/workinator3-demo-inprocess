@@ -113,7 +113,7 @@ public class Runner implements CommandLineRunner {
                 val assignment =
                         e.getAssignment() == null
                                 ? ""
-                                : e.getAssignment().getPartitionKey();
+                                : e.getStatus().isStopped() ? "" : e.getAssignment().getPartitionKey();
                 output.append("\t" + e.getWorkerId().getWorkerNumber() + " - " + e.getStatus() + ", Assignment=" + assignment + lineSeparator());
             }
             output.append(lineSeparator());

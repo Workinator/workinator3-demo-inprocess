@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>com.allardworks.workinator3</groupId>
-            <artifactId>workinator3-consumer</artifactId>
+            <artifactId>workinator3</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 		<dependency>

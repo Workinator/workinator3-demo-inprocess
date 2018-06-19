@@ -8,9 +8,9 @@ import lombok.val;
 import java.io.Console;
 
 public class DemoWorker implements AsyncWorker {
-    public DemoWorker() {
-        System.out.println("created demo worker");
-    }
+    //public DemoWorker() {
+    //    System.out.println("created demo worker");
+    //}
 
     @Override
     public void execute(WorkerContext context) {
