@@ -9,7 +9,7 @@ import java.util.Map;
  *
  * HACKETY HACK HACK
  *
- * The DEMO app hosts multiple consumersin a single process.
+ * The DEMO app hosts multiple consumers in a single process.
  * The single instance of this class is used by each of the workers.
  * It allows the demo app to set values that control the workers behavior.
  *
@@ -48,6 +48,7 @@ public class DemoHelper {
     }
 
     public DemoHelper setHasWork(final String partitionKey, final boolean hasWork) {
+        System.out.println("has work " + partitionKey + " = " + hasWork);
         getPartition(partitionKey).setHasWork(hasWork);
         return this;
     }

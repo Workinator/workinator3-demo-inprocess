@@ -7,17 +7,22 @@ import lombok.val;
 
 import java.io.Console;
 
-@RequiredArgsConstructor
 public class DemoWorker implements AsyncWorker {
-    private boolean lastHadWork = false;
+    public DemoWorker() {
+        System.out.println("created demo worker");
+    }
+
     @Override
     public void execute(WorkerContext context) {
+        // determine if the partition has work. for demo purposes, this is set by the test console.
+        // it is set in a static variable this is retrieved here.
+        // later, this can be handled through messaging.
         val hasWork = DemoHelper.getHack().getPartitionHasWork(context.getAssignment().getPartitionKey());
         context.hasWork(hasWork);
-        if (hasWork != lastHadWork) {
-            System.out.println("Has work change: Partition " + context.getAssignment().getPartitionKey() + " = " + hasWork);
-            lastHadWork = hasWork;
-        }
+
+
+        // same with ISFROZEN. if the static variable is set to frozen, this loop
+        // keeps going. this emulates a worker that's blocking.
         while (DemoHelper.getHack().getWorkerIsFrozen(context.getAssignment().getWorkerId().getConsumer().getConsumerId().getName(), context.getAssignment().getWorkerId().getWorkerNumber())) {
             try {
                 Thread.sleep(100);
